@@ -369,7 +369,7 @@ AW.Achievement.*
 
 # Framework Ready Checklist
 
-☐ GameplayTags.ini configured
+☑ GameplayTags.ini configured
 
 ☐ Root hierarchy defined
 
