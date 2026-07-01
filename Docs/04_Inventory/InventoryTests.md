@@ -12,27 +12,28 @@ Last Update: 2026-07-01
 
 Every inventory feature must be validated before the framework is considered complete.
 
-The framework is tested in three stages:
+Testing follows four stages:
 
 1. Functional
-2. Multiplayer
-3. Stress
+2. Edge Cases
+3. Multiplayer
+4. Performance
 
-No feature is considered complete until all applicable tests pass.
+The Inventory Framework is considered Framework Ready only after every applicable test passes.
 
 ---
 
 # Functional Tests
 
-## Empty Inventory
+## Initialization
 
-☐ Inventory starts empty
+☐ Inventory creates the configured number of slots
 
-☐ Every slot is empty
+☐ Every slot starts empty
 
-☐ IsEmpty returns true
+☐ Empty ItemStack is correctly initialized
 
-☐ IsFull returns false
+☐ Inventory size never changes after initialization
 
 ---
 
@@ -40,15 +41,17 @@ No feature is considered complete until all applicable tests pass.
 
 ☐ Add to empty inventory
 
-☐ Fill existing stack
+☐ Fill compatible stack
+
+☐ Fill multiple compatible stacks
 
 ☐ Create new stack
 
-☐ Fill multiple stacks
+☐ Inventory full returns RemainingStack
 
-☐ Inventory full
+☐ Stack never exceeds MaxStackSize
 
-☐ RemainingStack returned correctly
+☐ Dispatcher called exactly once
 
 ---
 
@@ -64,57 +67,241 @@ No feature is considered complete until all applicable tests pass.
 
 ☐ Remove missing item
 
-☐ RemovedStack returned correctly
+☐ Remove more than available
+
+☐ Dispatcher called exactly once
+
+---
+
+## Remove From Slot
+
+☐ Remove partial quantity
+
+☐ Remove entire stack
+
+☐ Slot automatically cleared
+
+☐ Invalid slot rejected
 
 ---
 
 ## Transfer Stack
 
-☐ Empty → Empty
+☐ Empty → Empty (Move)
 
-☐ Empty → Occupied
+☐ Occupied → Empty (Move)
 
-☐ Occupied → Empty
+☐ Same Item → Merge
 
-☐ Merge stacks
+☐ Partial Merge
 
-☐ Swap stacks
+☐ Different Items → Swap
 
-☐ Invalid slot
+☐ Same Slot
+
+☐ Empty Source
+
+☐ Full Target
+
+☐ Invalid Source Slot
+
+☐ Invalid Target Slot
+
+☐ Dispatcher called exactly once
 
 ---
 
 ## Clear Inventory
 
-☐ Remove every stack
-
 ☐ Inventory becomes empty
 
-☐ Dispatcher called
+☐ Every slot cleared
+
+☐ Dispatcher called exactly once
 
 ---
 
-## Queries
+# Query Tests
 
-☐ GetSlot
+## F_GetSlot
 
-☐ GetItemCount
+☐ Valid slot
 
-☐ HasItem
+☐ Invalid slot
 
-☐ HasItems
+---
 
-☐ IsEmpty
+## F_GetItemCount
 
-☐ IsFull
+☐ Item exists
 
-☐ CanAddItem
+☐ Item missing
 
-☐ IsValidSlot
+☐ Multiple stacks
 
-☐ IsSlotEmpty
+---
 
-☐ CanStackTogether
+## F_HasItem
+
+☐ Present
+
+☐ Missing
+
+---
+
+## F_HasItems
+
+☐ All present
+
+☐ Missing one item
+
+☐ Missing quantity
+
+---
+
+## F_IsEmpty
+
+☐ Empty inventory
+
+☐ Non-empty inventory
+
+---
+
+## F_IsFull
+
+☐ Inventory full
+
+☐ One empty slot
+
+☐ One compatible stack available
+
+---
+
+## F_CanAddItem
+
+☐ Fits existing stack
+
+☐ Fits empty slot
+
+☐ Inventory full
+
+☐ Partial fit
+
+---
+
+## F_IsValidSlot
+
+☐ Valid index
+
+☐ Negative index
+
+☐ Out of bounds
+
+---
+
+## F_IsSlotEmpty
+
+☐ Empty slot
+
+☐ Occupied slot
+
+---
+
+## F_CanStackTogether
+
+☐ Same item
+
+☐ Different item
+
+☐ Full stack
+
+☐ Empty stack
+
+---
+
+# Internal Helper Tests
+
+## F_InitializeInventory
+
+☐ Creates MaxSlots slots
+
+☐ All slots empty
+
+---
+
+## F_FindFirstEmptySlot
+
+☐ Empty inventory returns first slot
+
+☐ Occupied slots skipped
+
+☐ Full inventory returns -1
+
+---
+
+## F_FindCompatibleStack
+
+☐ Compatible stack found
+
+☐ First compatible stack returned
+
+☐ Full compatible stack ignored
+
+☐ Different item ignored
+
+☐ No compatible stack returns -1
+
+---
+
+## F_InternalSetSlot
+
+☐ Slot replaced correctly
+
+---
+
+## F_InternalClearSlot
+
+☐ Slot reset
+
+☐ Item becomes None
+
+☐ Quantity becomes 0
+
+---
+
+## F_InternalIncreaseQuantity
+
+☐ Quantity increased
+
+☐ MaxStackSize respected
+
+---
+
+## F_InternalDecreaseQuantity
+
+☐ Quantity decreased
+
+☐ Slot cleared when quantity reaches zero
+
+---
+
+# Edge Cases
+
+☐ Empty ItemStack
+
+☐ Null Item reference
+
+☐ Quantity = 0
+
+☐ Quantity < 0
+
+☐ MaxStackSize = 1
+
+☐ Very large stack
+
+☐ Invalid slot access
+
+☐ Inventory with one slot
 
 ---
 
@@ -128,19 +315,19 @@ No feature is considered complete until all applicable tests pass.
 
 ☐ Transfer Stack
 
-☐ Swap Slots
-
 ☐ Clear Inventory
 
 ---
 
 ## Client
 
-☐ Client receives replication
+☐ Inventory replicated
 
-☐ UI updates correctly
+☐ OnRep executed
 
-☐ Dispatcher fires correctly
+☐ Dispatcher executed
+
+☐ UI refreshed
 
 ---
 
@@ -148,39 +335,23 @@ No feature is considered complete until all applicable tests pass.
 
 ☐ Two players viewing same inventory
 
-☐ Simultaneous modifications
+☐ Simultaneous transfers
 
-☐ Conflict resolution
+☐ Simultaneous add
 
-☐ Inventory consistency
+☐ Simultaneous remove
+
+☐ Inventory stays synchronized
 
 ---
 
 ## Late Join
 
-☐ Inventory replicated correctly
+☐ Full inventory replicated
 
-☐ Current state received
+☐ Empty inventory replicated
 
-☐ UI synchronized
-
----
-
-# Edge Cases
-
-☐ Empty ItemStack
-
-☐ Quantity = 0
-
-☐ Quantity < 0
-
-☐ Invalid Slot
-
-☐ Max Stack Size = 1
-
-☐ Max Stack Size reached
-
-☐ Null Item reference
+☐ Current state synchronized
 
 ---
 
@@ -192,28 +363,28 @@ No feature is considered complete until all applicable tests pass.
 
 ☐ Transfer 1000 ItemStacks
 
-☐ Large inventory
+☐ Multiple inventories replicated
 
-☐ Multiple replicated inventories
+☐ Large inventories
 
 ---
 
-# Validation Criteria
+# Framework Validation
 
 The Inventory Framework is considered Framework Ready when:
 
 ☐ Every functional test passes
 
-☐ Every multiplayer test passes
-
 ☐ Every edge case passes
+
+☐ Every multiplayer test passes
 
 ☐ Every performance test passes
 
-☐ Documentation is complete
+☐ Documentation reviewed
 
-☐ Multiplayer validation completed
+☐ Architecture reviewed
 
-☐ Architecture review completed
+☐ Network validation completed
 
-☐ System locked
+☐ Framework locked

@@ -4,13 +4,32 @@ Version: 1.0.0
 
 Status: Planning
 
+Last Update: 2026-07-01
+
 ---
 
-# Purpose
+# Philosophy
 
-Provide a generic inventory system capable of storing and manipulating item stacks.
+The Inventory Framework is the backbone of item storage within Aetherworks.
 
-Every gameplay system uses the exact same inventory implementation.
+It provides a generic, reusable and multiplayer-ready inventory system.
+
+The framework is completely independent from gameplay systems.
+
+Every inventory in the game uses the exact same component.
+
+---
+
+# Goals
+
+The Inventory Framework must be:
+
+- Generic
+- Reusable
+- Event Driven
+- Multiplayer First
+- Data Driven
+- UI Independent
 
 ---
 
@@ -22,7 +41,8 @@ The Inventory Framework is responsible for:
 - Managing item stacks
 - Validating insertions
 - Validating removals
-- Broadcasting inventory updates
+- Validating transfers
+- Broadcasting inventory changes
 
 ---
 
@@ -32,28 +52,49 @@ The Inventory Framework never:
 
 - Knows the player
 - Knows machines
+- Knows buildings
 - Knows recipes
 - Knows production
 - Knows UI
+- Knows gameplay rules
 - Knows networking ownership
 
 ---
 
-# Framework Guarantees
+# Consumers
 
-The framework guarantees:
+The Inventory Framework is used by:
 
-✔ Existing stacks are always filled first.
+- Players
+- Chests
+- Machines
+- Storage Buildings
+- Conveyors
+- Vehicles
+- Drones
+- Future gameplay systems
 
-✔ Empty slots are used only if required.
+---
 
-✔ Inventory order is preserved unless explicitly changed.
+# Architecture
 
-✔ Stack sizes never exceed MaxStackSize.
+Gameplay
 
-✔ Inventory changes trigger ED_OnInventoryChanged exactly once.
+↓
 
-✔ Inventory data remains deterministic across server and clients.
+Inventory Component
+
+↓
+
+Inventory Slots
+
+↓
+
+Item Stacks
+
+↓
+
+Primary Data Assets
 
 ---
 
@@ -66,6 +107,44 @@ Array<S_AW_ItemStack>
 MaxSlots
 
 Integer
+
+---
+
+# Framework Guarantees
+
+The Inventory Framework guarantees:
+
+✔ Inventory size never changes during gameplay.
+
+✔ Existing compatible stacks are always filled before empty slots are used.
+
+✔ Stack quantities never exceed MaxStackSize.
+
+✔ Inventory order remains deterministic.
+
+✔ Inventory modifications are server authoritative.
+
+✔ Inventory modifications trigger exactly one inventory update.
+
+✔ Gameplay systems never modify InventorySlots directly.
+
+---
+
+# Transfer Rules
+
+The Inventory Framework automatically determines the correct transfer behavior.
+
+Possible outcomes are:
+
+- Move
+- Merge
+- Partial Merge
+- Swap
+- Reject
+
+Gameplay systems never decide which transfer behavior should occur.
+
+The Inventory Framework is solely responsible for transfer logic.
 
 ---
 
@@ -83,29 +162,40 @@ Events
 
 ---
 
-# Network
+# Internal Helpers
 
-Server Authoritative
+The Inventory Framework exposes internal helper functions used only by the component implementation.
 
-Replicated Inventory
+These helpers are:
 
-RepNotify
+- Private
+- Non replicated
+- UI independent
+- Dispatcher independent
+
+They are responsible for manipulating inventory data while the public API orchestrates gameplay behavior.
 
 ---
 
-# Consumers
+# Event Dispatchers
 
-Player
+ED_OnInventoryChanged
 
-Storage
+Broadcast whenever the inventory content changes.
 
-Production
+---
 
-Machine
+# Networking
 
-Drone
+The Inventory Framework is fully server authoritative.
 
-Vehicle
+Inventory modifications execute exclusively on the server.
+
+Inventory data is replicated to clients.
+
+UI refreshes through replicated data and Event Dispatchers.
+
+Widgets never modify inventory data directly.
 
 ---
 
@@ -121,22 +211,32 @@ Locked Slots
 
 Slot Restrictions
 
-Overflow Storage
+Overflow Inventories
+
+Weight Restrictions
+
+Auto Sort
 
 ---
 
-# Framework Ready
+# Framework Ready Checklist
 
-☐ API
+☐ Documentation completed
 
-☐ Tests
+☐ Component created
 
-☐ Replication
+☐ Internal helpers implemented
 
-☐ Documentation
+☐ Public API implemented
 
-☐ Performance
+☐ Replication implemented
 
-☐ Multiplayer
+☐ Multiplayer validated
+
+☐ Performance validated
+
+☐ Documentation reviewed
+
+☐ Framework Ready
 
 ☐ Locked

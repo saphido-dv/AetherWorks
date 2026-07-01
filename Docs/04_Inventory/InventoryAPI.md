@@ -10,13 +10,13 @@ Last Update: 2026-07-01
 
 # Philosophy
 
-The Inventory API exposes every operation available on the Inventory Framework.
+The Inventory API defines every public operation available on the Inventory Framework.
 
-The API is designed to be generic, deterministic and multiplayer-ready.
+The Inventory Framework manipulates ItemStacks rather than Item / Quantity pairs whenever possible.
 
-Every gameplay system must interact with inventories exclusively through this API.
+Every gameplay system communicates with inventories exclusively through this API.
 
-The framework manipulates ItemStacks rather than individual item and quantity pairs whenever possible.
+InventorySlots remain private and are never accessed directly outside of the Inventory Component.
 
 ---
 
@@ -27,6 +27,7 @@ The framework manipulates ItemStacks rather than individual item and quantity pa
 - Modification
 - Transfer
 - Events
+- Internal Helpers
 
 ---
 
@@ -38,9 +39,13 @@ Category
 
 Inventory|Queries
 
+Access
+
+Public
+
 Purpose
 
-Returns the content of a slot.
+Returns the ItemStack stored in a slot.
 
 Parameters
 
@@ -62,9 +67,13 @@ Category
 
 Inventory|Queries
 
+Access
+
+Public
+
 Purpose
 
-Returns the total quantity of a specific item contained in the inventory.
+Returns the total quantity of a specific item.
 
 Parameters
 
@@ -86,9 +95,13 @@ Category
 
 Inventory|Queries
 
+Access
+
+Public
+
 Purpose
 
-Checks whether the inventory contains the specified ItemStack.
+Checks whether the inventory contains the requested ItemStack.
 
 Parameters
 
@@ -110,9 +123,13 @@ Category
 
 Inventory|Queries
 
+Access
+
+Public
+
 Purpose
 
-Checks whether every required ItemStack exists inside the inventory.
+Checks whether all requested ItemStacks exist.
 
 Parameters
 
@@ -134,9 +151,13 @@ Category
 
 Inventory|Queries
 
+Access
+
+Public
+
 Purpose
 
-Checks whether every inventory slot is empty.
+Returns true if every inventory slot is empty.
 
 Returns
 
@@ -154,9 +175,13 @@ Category
 
 Inventory|Queries
 
+Access
+
+Public
+
 Purpose
 
-Checks whether the inventory can no longer receive additional items.
+Returns true if no additional ItemStack can fit.
 
 Returns
 
@@ -176,15 +201,17 @@ Category
 
 Inventory|Validation
 
+Access
+
+Public
+
 Purpose
 
-Determines whether the provided ItemStack can completely fit into the inventory.
+Checks whether the provided ItemStack can completely fit into the inventory.
 
 Behavior
 
-Existing compatible stacks are filled first.
-
-Empty slots are used only if necessary.
+Compatible stacks are filled before empty slots.
 
 Parameters
 
@@ -206,9 +233,41 @@ Category
 
 Inventory|Validation
 
+Access
+
+Public
+
 Purpose
 
-Checks whether the specified slot index exists.
+Checks whether a slot index exists.
+
+Parameters
+
+- SlotIndex (Integer)
+
+Returns
+
+- Boolean
+
+Networking
+
+Pure
+
+---
+
+## F_IsSlotEmpty
+
+Category
+
+Inventory|Validation
+
+Access
+
+Public
+
+Purpose
+
+Checks whether a slot is empty.
 
 Parameters
 
@@ -230,38 +289,18 @@ Category
 
 Inventory|Validation
 
-Purpose
+Access
 
-Checks whether two ItemStacks can be merged.
-
-Parameters
-
-- Stack A (S_AW_ItemStack)
-- Stack B (S_AW_ItemStack)
-
-Returns
-
-- Boolean
-
-Networking
-
-Pure
-
----
-
-## F_IsSlotEmpty
-
-Category
-
-Inventory|Validation
+Public
 
 Purpose
 
-Checks whether a slot contains an item.
+Checks whether two ItemStacks are compatible for merging.
 
 Parameters
 
-- SlotIndex (Integer)
+- StackA (S_AW_ItemStack)
+- StackB (S_AW_ItemStack)
 
 Returns
 
@@ -281,17 +320,21 @@ Category
 
 Inventory|Modification
 
+Access
+
+Public
+
 Purpose
 
 Attempts to insert an ItemStack into the inventory.
 
 Behavior
 
-Existing stacks are filled before empty slots.
+Compatible stacks are filled first.
 
-Stacks never exceed MaxStackSize.
+Remaining quantity is placed into empty slots.
 
-Returns the remaining quantity if the inventory becomes full.
+Returns the remaining ItemStack if the inventory becomes full.
 
 Parameters
 
@@ -317,13 +360,17 @@ Category
 
 Inventory|Modification
 
+Access
+
+Public
+
 Purpose
 
 Attempts to remove an ItemStack from the inventory.
 
 Behavior
 
-Items are removed from existing stacks until the requested quantity has been removed.
+Items are removed until the requested quantity has been removed.
 
 Parameters
 
@@ -348,6 +395,10 @@ ED_OnInventoryChanged
 Category
 
 Inventory|Modification
+
+Access
+
+Public
 
 Purpose
 
@@ -378,6 +429,10 @@ Category
 
 Inventory|Modification
 
+Access
+
+Public
+
 Purpose
 
 Removes every ItemStack from the inventory.
@@ -400,15 +455,25 @@ Category
 
 Inventory|Transfer
 
+Access
+
+Public
+
 Purpose
 
-Transfers an ItemStack between two slots.
+Transfers an ItemStack between two inventory slots.
 
 Behavior
 
-Attempts to merge first.
+The Inventory Framework automatically determines the correct transfer operation.
 
-Swaps stacks if merging is impossible.
+Possible outcomes
+
+- Move
+- Merge
+- Partial Merge
+- Swap
+- Reject
 
 Parameters
 
@@ -417,7 +482,7 @@ Parameters
 
 Returns
 
-- Boolean
+- Success (Boolean)
 
 Networking
 
@@ -435,38 +500,170 @@ ED_OnInventoryChanged
 
 Purpose
 
-Broadcast whenever the inventory content changes.
+Broadcast whenever inventory content changes.
 
-Called After
+Triggered After
 
 - Add Item
 - Remove Item
+- Remove From Slot
 - Transfer Stack
-- Swap Slots
 - Clear Inventory
+
+---
+
+# Internal Helpers
+
+Internal helper functions are implementation details.
+
+They are:
+
+- Private
+- Never replicated
+- Never broadcast dispatchers
+- Never interact with UI
+
+---
+
+## F_InitializeInventory
+
+Purpose
+
+Creates every inventory slot.
+
+Returns
+
+None
+
+---
+
+## F_FindFirstEmptySlot
+
+Purpose
+
+Returns the first empty slot.
+
+Returns
+
+SlotIndex
+
+Return Value
+
+-1 if none exists.
+
+---
+
+## F_FindCompatibleStack
+
+Purpose
+
+Returns the first compatible stack that can receive the provided ItemStack.
+
+Parameters
+
+- ItemStack (S_AW_ItemStack)
+
+Returns
+
+SlotIndex
+
+Return Value
+
+-1 if none exists.
+
+---
+
+## F_InternalSetSlot
+
+Purpose
+
+Replaces the content of a slot.
+
+Parameters
+
+- SlotIndex
+- ItemStack
+
+Returns
+
+None
+
+---
+
+## F_InternalClearSlot
+
+Purpose
+
+Resets a slot to an empty ItemStack.
+
+Parameters
+
+- SlotIndex
+
+Returns
+
+None
+
+---
+
+## F_InternalIncreaseQuantity
+
+Purpose
+
+Adds quantity to an existing stack.
+
+Parameters
+
+- SlotIndex
+- Amount
+
+Returns
+
+None
+
+---
+
+## F_InternalDecreaseQuantity
+
+Purpose
+
+Removes quantity from an existing stack.
+
+Automatically clears the slot when quantity reaches zero.
+
+Parameters
+
+- SlotIndex
+- Amount
+
+Returns
+
+None
 
 ---
 
 # Framework Guarantees
 
-The Inventory Framework guarantees that:
+The Inventory API guarantees:
 
-- Inventory order remains deterministic.
-- Stack sizes never exceed MaxStackSize.
-- Existing stacks are always filled before empty slots.
+- Public functions never access UI.
+- Internal helpers never broadcast dispatchers.
+- InventorySlots remain private.
+- Public functions orchestrate helpers.
+- Helpers manipulate data only.
 - Every successful modification broadcasts exactly one inventory update.
-- Inventory logic remains independent from gameplay systems.
+- Inventory remains deterministic across server and clients.
 
 ---
 
 # Framework Ready Checklist
 
-☐ API reviewed
+☐ API validated
 
-☐ Categories validated
+☐ Blueprint implementation completed
 
-☐ Naming validated
+☐ Multiplayer reviewed
 
 ☐ Documentation validated
 
-☐ Ready for implementation
+☐ Ready for production
