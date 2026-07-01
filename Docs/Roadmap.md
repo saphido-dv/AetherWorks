@@ -42,7 +42,12 @@ Included:
 
 ## Sprint 1 — Gameplay Tags Framework
 
-Status: ⏳ Planned
+Status: 🟡 In Progress
+
+Started:
+
+- GameplayTags.md
+
 
 Goal:
 
