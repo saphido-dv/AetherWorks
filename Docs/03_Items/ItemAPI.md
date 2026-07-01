@@ -1,8 +1,8 @@
 # Item Framework API
 
-Version: 1.0.0
+Version: 1.0.1
 
-Status: Planning
+Status: Framework Ready
 
 Last Update: 2026-07-01
 
@@ -278,4 +278,4 @@ Items never know players.
 
 ☑ Test assets created
 
-☐ Documentation validated
+☑ Framework validated

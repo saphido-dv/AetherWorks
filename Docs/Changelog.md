@@ -179,28 +179,46 @@ Locked Systems
 
 ---
 
+## Sprint 2 — GameplayTags Framework
+
+Status: 🟢 COMPLETE
+
+Added:
+
+- AW.Item.Resource
+- AW.Item.Fuel
+- AW.Item.Product
+- AW.Item.Tool
+- AW.Item.Building
+- AW.Resource.Stone
+- AW.Resource.Wood
+
+---
+
+## Sprint 2 — Item Framework
+
+Status: 🟢 COMPLETE
+
+Added:
+
+- PDA_AW_Item
+- PDA_AW_Item_WoodLog
+- PDA_AW_Item_Plank
+- S_AW_ItemStack
+
+Implemented:
+
+- Gameplay Tag integration
+- Primary Data Asset architecture
+- Item API v1.0
+
+Status:
+
+🔒 LOCKED
+
+---
 # Upcoming Milestones
-
-Sprint 1
-
-Gameplay Tags Framework
-
-Status:
-
-⏳ Planned
-
 ---
-
-Sprint 2
-
-Item Framework
-
-Status:
-
-⏳ Planned
-
----
-
 Sprint 3
 
 Inventory Framework

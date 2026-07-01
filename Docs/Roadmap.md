@@ -42,7 +42,7 @@ Included:
 
 ## Sprint 1 — Gameplay Tags Framework
 
-Status: 🟡 In Progress
+Status: 🟢 COMPLETE
 
 Started:
 
@@ -66,7 +66,7 @@ Includes:
 
 ## Sprint 2 — Item Framework
 
-Status: ⏳ Planned
+Status: 🟢 COMPLETE
 
 Goal:
 
