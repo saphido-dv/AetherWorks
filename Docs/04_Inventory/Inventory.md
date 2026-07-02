@@ -2,34 +2,34 @@
 
 Version: 1.0.0
 
-Status: Planning
+Status: Locked
 
-Last Update: 2026-07-01
-
----
-
-# Philosophy
-
-The Inventory Framework is the backbone of item storage within Aetherworks.
-
-It provides a generic, reusable and multiplayer-ready inventory system.
-
-The framework is completely independent from gameplay systems.
-
-Every inventory in the game uses the exact same component.
+Last Update: 2026-07-02
 
 ---
 
-# Goals
+# Purpose
 
-The Inventory Framework must be:
+The Inventory Framework provides a generic, reusable and multiplayer-ready inventory system.
+
+Every gameplay system stores and manipulates items through this framework.
+
+The inventory is completely independent from gameplay systems.
+
+---
+
+# Design Goals
+
+The framework must be:
 
 - Generic
-- Reusable
-- Event Driven
 - Multiplayer First
 - Data Driven
 - UI Independent
+- Event Driven
+- Deterministic
+- Easy to extend
+- Easy to test
 
 ---
 
@@ -37,12 +37,12 @@ The Inventory Framework must be:
 
 The Inventory Framework is responsible for:
 
+- Storing ItemStacks
 - Managing inventory slots
-- Managing item stacks
 - Validating insertions
 - Validating removals
-- Validating transfers
-- Broadcasting inventory changes
+- Transferring stacks
+- Broadcasting inventory updates
 
 ---
 
@@ -56,8 +56,7 @@ The Inventory Framework never:
 - Knows recipes
 - Knows production
 - Knows UI
-- Knows gameplay rules
-- Knows networking ownership
+- Knows game rules
 
 ---
 
@@ -65,36 +64,34 @@ The Inventory Framework never:
 
 The Inventory Framework is used by:
 
-- Players
-- Chests
-- Machines
-- Storage Buildings
-- Conveyors
+- Player Inventory
+- Storage Containers
+- Production Machines
 - Vehicles
 - Drones
-- Future gameplay systems
+- Future Gameplay Systems
 
 ---
 
 # Architecture
 
-Gameplay
+Gameplay Systems
 
 ↓
 
-Inventory Component
+BPC_AW_Inventory
 
 ↓
 
-Inventory Slots
+InventorySlots
 
 ↓
 
-Item Stacks
+S_AW_ItemStack
 
 ↓
 
-Primary Data Assets
+PDA_AW_Item
 
 ---
 
@@ -102,31 +99,52 @@ Primary Data Assets
 
 InventorySlots
 
+Type
+
 Array<S_AW_ItemStack>
 
-MaxSlots
+Visibility
 
-Integer
+Private
+
+Description
+
+Stores every inventory slot.
 
 ---
 
-# Framework Guarantees
+MaxSlots
 
-The Inventory Framework guarantees:
+Type
 
-✔ Inventory size never changes during gameplay.
+Integer
 
-✔ Existing compatible stacks are always filled before empty slots are used.
+Description
 
-✔ Stack quantities never exceed MaxStackSize.
+Maximum number of slots.
 
-✔ Inventory order remains deterministic.
+Configured once during initialization.
 
-✔ Inventory modifications are server authoritative.
+Never changes during gameplay.
 
-✔ Inventory modifications trigger exactly one inventory update.
+---
 
-✔ Gameplay systems never modify InventorySlots directly.
+# Framework Rules
+
+InventorySlots is private.
+
+Only BPC_AW_Inventory may modify inventory data.
+
+External systems communicate exclusively through the public API.
+
+Internal helper functions never:
+
+- Replicate
+- Broadcast dispatchers
+- Modify UI
+- Execute gameplay logic
+
+Public API functions orchestrate internal helpers.
 
 ---
 
@@ -134,7 +152,7 @@ The Inventory Framework guarantees:
 
 The Inventory Framework automatically determines the correct transfer behavior.
 
-Possible outcomes are:
+Possible operations:
 
 - Move
 - Merge
@@ -142,9 +160,31 @@ Possible outcomes are:
 - Swap
 - Reject
 
-Gameplay systems never decide which transfer behavior should occur.
+Gameplay systems never decide transfer behavior.
 
-The Inventory Framework is solely responsible for transfer logic.
+---
+
+# Networking
+
+Server Authoritative
+
+Inventory modifications execute on the server.
+
+Inventory data replicates to clients.
+
+Clients never modify replicated inventory data.
+
+Widgets never modify inventories directly.
+
+---
+
+# Event Dispatchers
+
+ED_OnInventoryChanged
+
+Broadcast once after a successful inventory modification.
+
+No dispatcher is fired when no inventory data changes.
 
 ---
 
@@ -158,44 +198,39 @@ Modification
 
 Transfer
 
-Events
-
 ---
 
 # Internal Helpers
 
-The Inventory Framework exposes internal helper functions used only by the component implementation.
+Initialization
 
-These helpers are:
+Slot Manipulation
 
-- Private
-- Non replicated
-- UI independent
-- Dispatcher independent
+Internal Data Operations
 
-They are responsible for manipulating inventory data while the public API orchestrates gameplay behavior.
+These helpers remain private.
 
 ---
 
-# Event Dispatchers
+# Framework Guarantees
 
-ED_OnInventoryChanged
+The Inventory Framework guarantees:
 
-Broadcast whenever the inventory content changes.
+✓ Inventory size never changes during gameplay.
 
----
+✓ Existing compatible stacks are filled before empty slots.
 
-# Networking
+✓ Stack quantities never exceed MaxStackSize.
 
-The Inventory Framework is fully server authoritative.
+✓ Inventory order is deterministic.
 
-Inventory modifications execute exclusively on the server.
+✓ Inventory modifications are server authoritative.
 
-Inventory data is replicated to clients.
+✓ InventorySlots remain encapsulated.
 
-UI refreshes through replicated data and Event Dispatchers.
+✓ Every successful modification broadcasts exactly one inventory update.
 
-Widgets never modify inventory data directly.
+✓ Gameplay systems never access inventory data directly.
 
 ---
 
@@ -203,40 +238,34 @@ Widgets never modify inventory data directly.
 
 Inventory Filters
 
+Slot Restrictions
+
+Locked Slots
+
 Sorting
 
 Quick Transfer
 
-Locked Slots
-
-Slot Restrictions
-
-Overflow Inventories
-
 Weight Restrictions
 
-Auto Sort
+Overflow Inventories
 
 ---
 
 # Framework Ready Checklist
 
-☐ Documentation completed
+☑ Documentation completed
 
-☐ Component created
+☑ Architecture reviewed
 
-☐ Internal helpers implemented
+☑ API defined
 
-☐ Public API implemented
+☑ Networking defined
 
-☐ Replication implemented
+☐ Blueprint implementation
 
-☐ Multiplayer validated
+☐ Multiplayer validation
 
-☐ Performance validated
+☐ Performance validation
 
-☐ Documentation reviewed
-
-☐ Framework Ready
-
-☐ Locked
+☐ Framework Locked

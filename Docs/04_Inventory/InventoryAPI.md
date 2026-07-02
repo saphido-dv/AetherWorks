@@ -2,9 +2,9 @@
 
 Version: 1.0.0
 
-Status: Planning
+Status: Locked
 
-Last Update: 2026-07-01
+Last Update: 2026-07-02
 
 ---
 
@@ -12,22 +12,25 @@ Last Update: 2026-07-01
 
 The Inventory API defines every public operation available on the Inventory Framework.
 
-The Inventory Framework manipulates ItemStacks rather than Item / Quantity pairs whenever possible.
+Gameplay systems interact exclusively through this API.
 
-Every gameplay system communicates with inventories exclusively through this API.
+InventorySlots remain private.
 
-InventorySlots remain private and are never accessed directly outside of the Inventory Component.
+Public functions orchestrate internal helper functions.
 
 ---
 
-# API Categories
+# Categories
 
-- Queries
-- Validation
-- Modification
-- Transfer
-- Events
-- Internal Helpers
+Inventory|Queries
+
+Inventory|Validation
+
+Inventory|Modification
+
+Inventory|Transfer
+
+Inventory|Internal
 
 ---
 
@@ -43,15 +46,15 @@ Access
 
 Public
 
-Purpose
+Description
 
 Returns the ItemStack stored in a slot.
 
-Parameters
+Inputs
 
 - SlotIndex (Integer)
 
-Returns
+Outputs
 
 - ItemStack (S_AW_ItemStack)
 
@@ -71,15 +74,15 @@ Access
 
 Public
 
-Purpose
+Description
 
 Returns the total quantity of a specific item.
 
-Parameters
+Inputs
 
 - Item (PDA_AW_Item)
 
-Returns
+Outputs
 
 - Quantity (Integer)
 
@@ -99,15 +102,15 @@ Access
 
 Public
 
-Purpose
+Description
 
-Checks whether the inventory contains the requested ItemStack.
+Returns true if the inventory contains the requested ItemStack.
 
-Parameters
+Inputs
 
 - ItemStack (S_AW_ItemStack)
 
-Returns
+Outputs
 
 - Boolean
 
@@ -127,15 +130,15 @@ Access
 
 Public
 
-Purpose
+Description
 
-Checks whether all requested ItemStacks exist.
+Returns true if every requested ItemStack exists.
 
-Parameters
+Inputs
 
 - ItemStacks (Array<S_AW_ItemStack>)
 
-Returns
+Outputs
 
 - Boolean
 
@@ -155,11 +158,11 @@ Access
 
 Public
 
-Purpose
+Description
 
 Returns true if every inventory slot is empty.
 
-Returns
+Outputs
 
 - Boolean
 
@@ -179,11 +182,11 @@ Access
 
 Public
 
-Purpose
+Description
 
-Returns true if no additional ItemStack can fit.
+Returns true if the inventory cannot receive additional items.
 
-Returns
+Outputs
 
 - Boolean
 
@@ -205,19 +208,15 @@ Access
 
 Public
 
-Purpose
+Description
 
-Checks whether the provided ItemStack can completely fit into the inventory.
+Checks whether an ItemStack can completely fit into the inventory.
 
-Behavior
-
-Compatible stacks are filled before empty slots.
-
-Parameters
+Inputs
 
 - ItemStack (S_AW_ItemStack)
 
-Returns
+Outputs
 
 - Boolean
 
@@ -237,15 +236,15 @@ Access
 
 Public
 
-Purpose
+Description
 
 Checks whether a slot index exists.
 
-Parameters
+Inputs
 
 - SlotIndex (Integer)
 
-Returns
+Outputs
 
 - Boolean
 
@@ -265,15 +264,15 @@ Access
 
 Public
 
-Purpose
+Description
 
 Checks whether a slot is empty.
 
-Parameters
+Inputs
 
 - SlotIndex (Integer)
 
-Returns
+Outputs
 
 - Boolean
 
@@ -293,16 +292,17 @@ Access
 
 Public
 
-Purpose
+Description
 
-Checks whether two ItemStacks are compatible for merging.
+Checks whether two ItemStacks can be merged.
 
-Parameters
+Inputs
 
 - StackA (S_AW_ItemStack)
+
 - StackB (S_AW_ItemStack)
 
-Returns
+Outputs
 
 - Boolean
 
@@ -324,23 +324,22 @@ Access
 
 Public
 
-Purpose
+Description
 
 Attempts to insert an ItemStack into the inventory.
 
 Behavior
 
-Compatible stacks are filled first.
+- Fill compatible stacks first.
+- Use empty slots only if necessary.
+- Never exceed MaxStackSize.
+- Returns remaining items if inventory becomes full.
 
-Remaining quantity is placed into empty slots.
-
-Returns the remaining ItemStack if the inventory becomes full.
-
-Parameters
+Inputs
 
 - ItemStack (S_AW_ItemStack)
 
-Returns
+Outputs
 
 - RemainingStack (S_AW_ItemStack)
 
@@ -348,7 +347,7 @@ Networking
 
 Server Only
 
-Triggers
+Broadcast
 
 ED_OnInventoryChanged
 
@@ -364,19 +363,15 @@ Access
 
 Public
 
-Purpose
+Description
 
 Attempts to remove an ItemStack from the inventory.
 
-Behavior
-
-Items are removed until the requested quantity has been removed.
-
-Parameters
+Inputs
 
 - ItemStack (S_AW_ItemStack)
 
-Returns
+Outputs
 
 - RemovedStack (S_AW_ItemStack)
 
@@ -384,7 +379,7 @@ Networking
 
 Server Only
 
-Triggers
+Broadcast
 
 ED_OnInventoryChanged
 
@@ -400,16 +395,17 @@ Access
 
 Public
 
-Purpose
+Description
 
-Removes items from a specific slot.
+Removes a quantity from a specific slot.
 
-Parameters
+Inputs
 
-- SlotIndex (Integer)
-- Quantity (Integer)
+- SlotIndex
 
-Returns
+- Quantity
+
+Outputs
 
 - RemovedStack (S_AW_ItemStack)
 
@@ -417,7 +413,7 @@ Networking
 
 Server Only
 
-Triggers
+Broadcast
 
 ED_OnInventoryChanged
 
@@ -433,7 +429,7 @@ Access
 
 Public
 
-Purpose
+Description
 
 Removes every ItemStack from the inventory.
 
@@ -441,7 +437,7 @@ Networking
 
 Server Only
 
-Triggers
+Broadcast
 
 ED_OnInventoryChanged
 
@@ -459,15 +455,13 @@ Access
 
 Public
 
-Purpose
+Description
 
-Transfers an ItemStack between two inventory slots.
+Transfers an ItemStack between two slots.
 
 Behavior
 
-The Inventory Framework automatically determines the correct transfer operation.
-
-Possible outcomes
+Automatically determines whether the operation is:
 
 - Move
 - Merge
@@ -475,12 +469,13 @@ Possible outcomes
 - Swap
 - Reject
 
-Parameters
+Inputs
 
-- SourceSlot (Integer)
-- TargetSlot (Integer)
+- SourceSlot
 
-Returns
+- TargetSlot
+
+Outputs
 
 - Success (Boolean)
 
@@ -488,27 +483,9 @@ Networking
 
 Server Only
 
-Triggers
+Broadcast
 
 ED_OnInventoryChanged
-
----
-
-# Events
-
-## ED_OnInventoryChanged
-
-Purpose
-
-Broadcast whenever inventory content changes.
-
-Triggered After
-
-- Add Item
-- Remove Item
-- Remove From Slot
-- Transfer Stack
-- Clear Inventory
 
 ---
 
@@ -521,149 +498,100 @@ They are:
 - Private
 - Never replicated
 - Never broadcast dispatchers
-- Never interact with UI
+- Never accessed outside BPC_AW_Inventory
 
 ---
 
 ## F_InitializeInventory
 
-Purpose
+Description
 
 Creates every inventory slot.
-
-Returns
-
-None
-
----
-
-## F_FindFirstEmptySlot
-
-Purpose
-
-Returns the first empty slot.
-
-Returns
-
-SlotIndex
-
-Return Value
-
--1 if none exists.
-
----
-
-## F_FindCompatibleStack
-
-Purpose
-
-Returns the first compatible stack that can receive the provided ItemStack.
-
-Parameters
-
-- ItemStack (S_AW_ItemStack)
-
-Returns
-
-SlotIndex
-
-Return Value
-
--1 if none exists.
 
 ---
 
 ## F_InternalSetSlot
 
-Purpose
+Description
 
 Replaces the content of a slot.
 
-Parameters
+Inputs
 
 - SlotIndex
+
 - ItemStack
-
-Returns
-
-None
 
 ---
 
 ## F_InternalClearSlot
 
-Purpose
+Description
 
 Resets a slot to an empty ItemStack.
 
-Parameters
+Inputs
 
 - SlotIndex
-
-Returns
-
-None
 
 ---
 
 ## F_InternalIncreaseQuantity
 
-Purpose
+Description
 
 Adds quantity to an existing stack.
 
-Parameters
+Inputs
 
 - SlotIndex
+
 - Amount
-
-Returns
-
-None
 
 ---
 
 ## F_InternalDecreaseQuantity
 
-Purpose
+Description
 
 Removes quantity from an existing stack.
 
 Automatically clears the slot when quantity reaches zero.
 
-Parameters
+Inputs
 
 - SlotIndex
+
 - Amount
-
-Returns
-
-None
 
 ---
 
 # Framework Guarantees
 
-The Inventory API guarantees:
+Public API functions never manipulate UI.
 
-- Public functions never access UI.
-- Internal helpers never broadcast dispatchers.
-- InventorySlots remain private.
-- Public functions orchestrate helpers.
-- Helpers manipulate data only.
-- Every successful modification broadcasts exactly one inventory update.
-- Inventory remains deterministic across server and clients.
+Internal helpers never broadcast dispatchers.
+
+InventorySlots remain private.
+
+Every successful modification triggers exactly one inventory update.
+
+Inventory behavior remains deterministic across server and clients.
 
 ---
 
 # Framework Ready Checklist
 
-☐ API validated
+☑ API reviewed
 
-☐ Blueprint implementation completed
+☑ Naming validated
 
-☐ Multiplayer reviewed
+☑ Categories validated
 
-☐ Documentation validated
+☑ Networking reviewed
 
-☐ Ready for production
+☐ Blueprint implementation
+
+☐ Multiplayer validation
+
+☐ Framework Locked

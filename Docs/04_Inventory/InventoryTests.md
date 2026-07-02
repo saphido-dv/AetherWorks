@@ -2,24 +2,24 @@
 
 Version: 1.0.0
 
-Status: Planning
+Status: Locked
 
-Last Update: 2026-07-01
+Last Update: 2026-07-02
 
 ---
 
 # Philosophy
 
-Every inventory feature must be validated before the framework is considered complete.
+Every Inventory Framework feature must be validated before the framework is considered production ready.
 
-Testing follows four stages:
+Testing is divided into four stages:
 
 1. Functional
 2. Edge Cases
 3. Multiplayer
 4. Performance
 
-The Inventory Framework is considered Framework Ready only after every applicable test passes.
+A feature is not considered complete until every applicable test passes.
 
 ---
 
@@ -27,31 +27,35 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ## Initialization
 
-☐ Inventory creates the configured number of slots
+☐ Inventory creates MaxSlots slots
 
-☐ Every slot starts empty
-
-☐ Empty ItemStack is correctly initialized
+☐ Every slot is initialized with an empty ItemStack
 
 ☐ Inventory size never changes after initialization
+
+☐ Inventory initializes only on the server
 
 ---
 
 ## Add Item
 
-☐ Add to empty inventory
+☐ Add into empty inventory
 
 ☐ Fill compatible stack
 
 ☐ Fill multiple compatible stacks
 
-☐ Create new stack
+☐ Create a new stack
+
+☐ Create multiple new stacks
 
 ☐ Inventory full returns RemainingStack
 
-☐ Stack never exceeds MaxStackSize
+☐ MaxStackSize is never exceeded
 
-☐ Dispatcher called exactly once
+☐ Inventory order remains deterministic
+
+☐ Dispatcher executed exactly once
 
 ---
 
@@ -65,11 +69,11 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ☐ Remove across multiple stacks
 
-☐ Remove missing item
-
 ☐ Remove more than available
 
-☐ Dispatcher called exactly once
+☐ Remove missing item
+
+☐ Dispatcher executed exactly once
 
 ---
 
@@ -77,47 +81,67 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ☐ Remove partial quantity
 
-☐ Remove entire stack
+☐ Remove complete slot
 
 ☐ Slot automatically cleared
 
 ☐ Invalid slot rejected
 
+☐ Dispatcher executed exactly once
+
 ---
 
 ## Transfer Stack
 
-☐ Empty → Empty (Move)
+### Move
 
-☐ Occupied → Empty (Move)
+☐ Empty → Empty
 
-☐ Same Item → Merge
+☐ Occupied → Empty
 
-☐ Partial Merge
+---
 
-☐ Different Items → Swap
+### Merge
 
-☐ Same Slot
+☐ Merge complete
 
-☐ Empty Source
+☐ Merge partial
 
-☐ Full Target
+☐ Merge until MaxStackSize
 
-☐ Invalid Source Slot
+---
 
-☐ Invalid Target Slot
+### Swap
 
-☐ Dispatcher called exactly once
+☐ Different items
+
+☐ Different quantities
+
+---
+
+### Invalid
+
+☐ Same slot
+
+☐ Invalid source slot
+
+☐ Invalid target slot
+
+☐ Empty source slot
+
+☐ Full destination
+
+☐ Dispatcher executed exactly once
 
 ---
 
 ## Clear Inventory
 
-☐ Inventory becomes empty
-
 ☐ Every slot cleared
 
-☐ Dispatcher called exactly once
+☐ Inventory becomes empty
+
+☐ Dispatcher executed exactly once
 
 ---
 
@@ -133,9 +157,9 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ## F_GetItemCount
 
-☐ Item exists
+☐ Item present
 
-☐ Item missing
+☐ Item absent
 
 ☐ Multiple stacks
 
@@ -143,17 +167,17 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ## F_HasItem
 
-☐ Present
+☐ Item present
 
-☐ Missing
+☐ Item absent
 
 ---
 
 ## F_HasItems
 
-☐ All present
+☐ Every item available
 
-☐ Missing one item
+☐ Missing item
 
 ☐ Missing quantity
 
@@ -169,23 +193,23 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ## F_IsFull
 
-☐ Inventory full
+☐ Full inventory
 
 ☐ One empty slot
 
-☐ One compatible stack available
+☐ One compatible stack
 
 ---
 
 ## F_CanAddItem
 
-☐ Fits existing stack
+☐ Fits compatible stack
 
 ☐ Fits empty slot
 
-☐ Inventory full
-
 ☐ Partial fit
+
+☐ Inventory full
 
 ---
 
@@ -195,7 +219,7 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ☐ Negative index
 
-☐ Out of bounds
+☐ Out of range
 
 ---
 
@@ -225,43 +249,19 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ☐ Creates MaxSlots slots
 
-☐ All slots empty
-
----
-
-## F_FindFirstEmptySlot
-
-☐ Empty inventory returns first slot
-
-☐ Occupied slots skipped
-
-☐ Full inventory returns -1
-
----
-
-## F_FindCompatibleStack
-
-☐ Compatible stack found
-
-☐ First compatible stack returned
-
-☐ Full compatible stack ignored
-
-☐ Different item ignored
-
-☐ No compatible stack returns -1
+☐ Initializes every slot
 
 ---
 
 ## F_InternalSetSlot
 
-☐ Slot replaced correctly
+☐ Replace slot
+
+☐ Preserve data
 
 ---
 
 ## F_InternalClearSlot
-
-☐ Slot reset
 
 ☐ Item becomes None
 
@@ -281,7 +281,7 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ☐ Quantity decreased
 
-☐ Slot cleared when quantity reaches zero
+☐ Automatic clear at zero
 
 ---
 
@@ -297,7 +297,7 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ☐ MaxStackSize = 1
 
-☐ Very large stack
+☐ Very large quantities
 
 ☐ Invalid slot access
 
@@ -335,21 +335,21 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ☐ Two players viewing same inventory
 
-☐ Simultaneous transfers
+☐ Simultaneous Add
 
-☐ Simultaneous add
+☐ Simultaneous Remove
 
-☐ Simultaneous remove
+☐ Simultaneous Transfer
 
-☐ Inventory stays synchronized
+☐ Inventory remains synchronized
 
 ---
 
 ## Late Join
 
-☐ Full inventory replicated
-
 ☐ Empty inventory replicated
+
+☐ Filled inventory replicated
 
 ☐ Current state synchronized
 
@@ -363,28 +363,28 @@ The Inventory Framework is considered Framework Ready only after every applicabl
 
 ☐ Transfer 1000 ItemStacks
 
-☐ Multiple inventories replicated
+☐ Large inventory
 
-☐ Large inventories
+☐ Multiple replicated inventories
 
 ---
 
 # Framework Validation
 
-The Inventory Framework is considered Framework Ready when:
+The Inventory Framework is considered complete when:
 
-☐ Every functional test passes
+☐ Every Functional Test passes
 
-☐ Every edge case passes
+☐ Every Edge Case passes
 
-☐ Every multiplayer test passes
+☐ Every Multiplayer Test passes
 
-☐ Every performance test passes
+☐ Every Performance Test passes
+
+☐ Blueprint review completed
 
 ☐ Documentation reviewed
 
-☐ Architecture reviewed
+☐ Multiplayer validated
 
-☐ Network validation completed
-
-☐ Framework locked
+☐ Framework Locked
